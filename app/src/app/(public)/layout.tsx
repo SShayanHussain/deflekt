@@ -1,5 +1,6 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 export default function PublicLayout({
   children,
@@ -30,9 +31,7 @@ export default function PublicLayout({
             <Link href="/login" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
               Sign In
             </Link>
-            <Button asChild className="rounded-full shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95">
-              <Link href="/signup">Get Started</Link>
-            </Button>
+            <Link href="/signup" className={cn(buttonVariants(), "rounded-full shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95")}>Get Started</Link>
           </div>
         </div>
       </header>

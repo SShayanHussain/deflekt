@@ -37,6 +37,27 @@ jobs:
     defaults:
       run:
         working-directory: ai-service
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: deflekt
+          POSTGRES_PASSWORD: deflekt
+          POSTGRES_DB: deflekt
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+    env:
+      DATABASE_URL: postgresql://deflekt:deflekt@localhost:5432/deflekt
+      REDIS_URL: redis://localhost:6379
     steps:
       - uses: actions/checkout@v4
 

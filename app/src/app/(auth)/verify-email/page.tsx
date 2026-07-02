@@ -1,9 +1,10 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 
@@ -66,9 +67,7 @@ function VerifyEmailHandler() {
           </div>
         </CardContent>
         <CardFooter className="justify-center">
-          <Button asChild>
-            <Link href="/dashboard">Go to Dashboard</Link>
-          </Button>
+          <Link href="/dashboard" className={cn(buttonVariants())}>Go to Dashboard</Link>
         </CardFooter>
       </>
     );
@@ -84,9 +83,7 @@ function VerifyEmailHandler() {
         </div>
       </CardContent>
       <CardFooter className="justify-center">
-        <Button asChild variant="outline">
-          <Link href="/login">Return to login</Link>
-        </Button>
+        <Link href="/login" className={cn(buttonVariants({ variant: "outline" }))}>Return to login</Link>
       </CardFooter>
     </>
   );

@@ -76,7 +76,7 @@ export default async function DashboardLayout({
           
           <div className="flex items-center gap-x-4 lg:gap-x-6">
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                   <Avatar className="h-9 w-9 border border-border">
                     <AvatarFallback className="bg-primary/10 text-primary">
@@ -95,10 +95,10 @@ export default async function DashboardLayout({
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem>
                   <Link href="/settings/profile">Profile Settings</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem>
                   <Link href="/settings/workspace">Workspace Settings</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

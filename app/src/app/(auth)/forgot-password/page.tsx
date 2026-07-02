@@ -1,8 +1,9 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,9 +59,7 @@ export default function ForgotPasswordPage() {
           </CardDescription>
         </CardHeader>
         <CardFooter className="justify-center pt-4">
-          <Button asChild variant="outline">
-            <Link href="/login">Return to login</Link>
-          </Button>
+          <Link href="/login" className={cn(buttonVariants({ variant: "outline" }))}>Return to login</Link>
         </CardFooter>
       </Card>
     );

@@ -206,7 +206,7 @@ export default function TeamSettingsPage() {
                   {/* Role indicator / selector */}
                   {isOwner && member.id !== currentUser?.id ? (
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger>
                         <Button variant="outline" size="sm" className="h-8">
                           {member.role === "owner" ? <Shield className="mr-2 w-3 h-3 text-primary" /> : <User className="mr-2 w-3 h-3 text-muted-foreground" />}
                           <span className="capitalize">{member.role}</span>

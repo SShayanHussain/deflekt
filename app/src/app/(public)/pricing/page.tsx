@@ -1,5 +1,6 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
 
@@ -48,9 +49,7 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button asChild className="w-full" variant="outline">
-                <Link href="/signup">Get Started</Link>
-              </Button>
+              <Link href="/signup" className={cn(buttonVariants({ variant: "outline" }), "w-full")}>Get Started</Link>
             </CardFooter>
           </Card>
 
@@ -88,9 +87,7 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button asChild className="w-full shadow-md transition-transform hover:scale-105 active:scale-95">
-                <Link href="/signup">Start Free Trial</Link>
-              </Button>
+              <Link href="/signup" className={cn(buttonVariants(), "w-full shadow-md transition-transform hover:scale-105 active:scale-95")}>Start Free Trial</Link>
             </CardFooter>
           </Card>
 
@@ -125,9 +122,7 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button asChild className="w-full" variant="outline">
-                <Link href="/signup">Contact Sales</Link>
-              </Button>
+              <Link href="/signup" className={cn(buttonVariants({ variant: "outline" }), "w-full")}>Contact Sales</Link>
             </CardFooter>
           </Card>
         </div>

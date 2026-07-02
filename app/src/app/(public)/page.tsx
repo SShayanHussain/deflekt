@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default function LandingPage() {
   return (
@@ -28,12 +29,12 @@ export default function LandingPage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <Button asChild size="lg" className="h-12 px-8 rounded-full shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95 text-base">
-                <Link href="/signup">Start Deflecting for Free</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="h-12 px-8 rounded-full border-border bg-background/50 backdrop-blur-sm hover:bg-muted text-base transition-all hover:scale-105 active:scale-95">
-                <Link href="/pricing">View Pricing</Link>
-              </Button>
+              <Link href="/signup" className={cn(buttonVariants({ size: "lg" }), "h-12 px-8 rounded-full shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95 text-base")}>
+                Start Deflecting for Free
+              </Link>
+              <Link href="/pricing" className={cn(buttonVariants({ size: "lg", variant: "outline" }), "h-12 px-8 rounded-full border-border bg-background/50 backdrop-blur-sm hover:bg-muted text-base transition-all hover:scale-105 active:scale-95")}>
+                View Pricing
+              </Link>
             </div>
           </div>
         </div>
@@ -89,9 +90,9 @@ export default function LandingPage() {
         <div className="container max-w-4xl px-4 md:px-6 text-center">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-6">Ready to reduce your ticket volume?</h2>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">Join product teams using Deflekt to provide instant support while saving hours of agent time every week.</p>
-          <Button asChild size="lg" className="h-14 px-10 rounded-full text-lg shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
-            <Link href="/signup">Get Started Now</Link>
-          </Button>
+          <Link href="/signup" className={cn(buttonVariants({ size: "lg" }), "h-14 px-10 rounded-full text-lg shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95")}>
+            Get Started Now
+          </Link>
         </div>
       </section>
     </div>
