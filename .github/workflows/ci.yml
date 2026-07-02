@@ -141,7 +141,7 @@ jobs:
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
             # Export environment variables for docker-compose
-            export GITHUB_REPOSITORY=${{ github.repository }}
+            export GITHUB_REPOSITORY=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
             export DATABASE_URL=${{ secrets.DATABASE_URL }}
             export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             
