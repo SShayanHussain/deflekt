@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { FileText, FileDown, UploadCloud, Trash2, RefreshCw } from "lucide-react";
+import { useAuth } from "@/components/providers/auth-provider";
 
 interface SourceDoc {
   id: string;
@@ -27,10 +28,14 @@ export function SourcesClient({
   const [sources, setSources] = useState<SourceDoc[]>(initialSources);
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const { accessToken } = useAuth();
 
   const fetchSources = async () => {
     try {
-      const res = await fetch(`/api/workspaces/${workspaceId}/sources`);
+      if (!accessToken) return;
+      const res = await fetch(`/api/workspaces/${workspaceId}/sources`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
       const data = await res.json();
       if (res.ok) {
         setSources(data.data);
@@ -61,6 +66,7 @@ export function SourcesClient({
     try {
       const res = await fetch(`/api/workspaces/${workspaceId}/sources`, {
         method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
         body: formData,
       });
       const data = await res.json();
@@ -83,6 +89,7 @@ export function SourcesClient({
     try {
       const res = await fetch(`/api/workspaces/${workspaceId}/sources/${id}`, {
         method: "DELETE",
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
       if (res.ok) {
         toast.success("Document deleted");
