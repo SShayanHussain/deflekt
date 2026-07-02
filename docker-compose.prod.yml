@@ -17,7 +17,7 @@ services:
 
   # --- Next.js App ---
   app:
-    image: ghcr.io/sshayanhussain/deflekt/deflekt-app:latest
+    image: ghcr.io/sshayanhussain/deflekt-app:latest
     restart: always
     environment:
       NODE_ENV: production
@@ -38,7 +38,7 @@ services:
 
   # --- FastAPI AI Service ---
   ai-service:
-    image: ghcr.io/sshayanhussain/deflekt/deflekt-ai:latest
+    image: ghcr.io/sshayanhussain/deflekt-ai:latest
     restart: always
     environment:
       DATABASE_URL: ${DATABASE_URL}
