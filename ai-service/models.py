@@ -28,4 +28,4 @@ class Chunk(Base):
     document_id = Column(UUID(as_uuid=True), nullable=False)
     content = Column(Text, nullable=False)
     metadata_ = Column("metadata", JSON, nullable=True)
-    embedding = Column(Vector(1536), nullable=True)
+    embedding = Column(Vector(768), nullable=True)

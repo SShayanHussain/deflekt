@@ -98,8 +98,8 @@ export const documentsRelations = relations(documents, ({ one, many }) => ({
 // We must explicitly use the custom vector type from pgvector
 const vector = customType<{ data: number[]; driverData: string }>({
   dataType() {
-    // 1536 is OpenAI's text-embedding-3-small dimension
-    return "vector(1536)";
+    // 768 is Gemini's text-embedding-004 dimension
+    return "vector(768)";
   },
   toDriver(value: number[]): string {
     return JSON.stringify(value);

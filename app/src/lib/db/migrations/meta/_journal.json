@@ -22,6 +22,13 @@
       "when": 1782973974145,
       "tag": "0002_curious_albert_cleary",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783010843926,
+      "tag": "0003_curved_hawkeye",
+      "breakpoints": true
     }
   ]
 }

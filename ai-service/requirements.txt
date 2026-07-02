@@ -5,7 +5,7 @@ uvicorn[standard]==0.34.3
 # Phase 2 Ingestion
 celery
 redis==5.0.3
-openai>=1.14.0
+google-genai>=0.3.0
 langchain-text-splitters==0.0.1
 pypdf==4.1.0
 beautifulsoup4==4.12.3

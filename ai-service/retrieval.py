@@ -1,22 +1,23 @@
 import os
 
-from openai import OpenAI
+from google import genai
 from sqlalchemy.orm import Session
 
 from models import Chunk
 
 # Initialize client with dummy key if none provided to avoid import crash
-openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", "dummy-key"))
+api_key = os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY") or "dummy-key"
+gemini_client = genai.Client(api_key=api_key)
 
 def get_query_embedding(query: str) -> list[float]:
-    if not os.getenv("OPENAI_API_KEY"):
-        return [0.0] * 1536
+    if api_key == "dummy-key":
+        return [0.0] * 768
 
-    response = openai_client.embeddings.create(
-        input=query,
-        model="text-embedding-3-small"
+    response = gemini_client.models.embed_content(
+        model="text-embedding-004",
+        contents=query
     )
-    return response.data[0].embedding
+    return response.embeddings[0].values
 
 def vector_search(db: Session, workspace_id: str, query: str, top_k: int = 5) -> list[Chunk]:
     """Retrieves chunks for a given query, strictly isolated to the workspace."""

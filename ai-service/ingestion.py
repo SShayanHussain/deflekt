@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 
 import boto3
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from openai import OpenAI
+from google import genai
 
 from .celery_app import celery_app
 from .db import SessionLocal
@@ -19,7 +19,8 @@ s3_client = boto3.client(
 )
 BUCKET_NAME = os.getenv("AWS_S3_BUCKET")
 
-openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+api_key = os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY")
+gemini_client = genai.Client(api_key=api_key) if api_key else None
 
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000,
@@ -44,15 +45,15 @@ def parse_file(file_path: str, doc_type: str) -> str:
     return ""
 
 def get_embeddings(texts: list[str]) -> list[list[float]]:
-    if not os.getenv("OPENAI_API_KEY"):
+    if not gemini_client:
         # For local dev without API key, just generate dummy embeddings
-        return [[0.0] * 1536 for _ in texts]
+        return [[0.0] * 768 for _ in texts]
 
-    response = openai_client.embeddings.create(
-        input=texts,
-        model="text-embedding-3-small"
+    response = gemini_client.models.embed_content(
+        model="text-embedding-004",
+        contents=texts
     )
-    return [data.embedding for data in response.data]
+    return [emb.values for emb in response.embeddings]
 
 @celery_app.task(name="ingest_document")
 def ingest_document(document_id: str):

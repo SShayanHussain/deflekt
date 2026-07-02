@@ -11,14 +11,15 @@ load_dotenv(env_path)
 # Ensure the parent directory is in path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from openai import OpenAI
+from google import genai
 
 from chat import check_faithfulness, generate_answer
 from db import SessionLocal
 from models import Chunk, Document
 from retrieval import vector_search
 
-openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", "dummy-key"))
+api_key = os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY") or "dummy-key"
+gemini_client = genai.Client(api_key=api_key)
 
 def setup_test_data(db_session):
     print("Setting up test data...")
@@ -67,19 +68,19 @@ def setup_test_data(db_session):
         {"id": uuid.uuid4(), "text": "The deflection engine uses a confidence threshold. If the generated answer's confidence falls below this threshold (default 0.72), the question is escalated to a human agent instead of answering."}
     ]
 
-    if os.getenv("OPENAI_API_KEY") and os.getenv("OPENAI_API_KEY") != "dummy-key":
+    if api_key != "dummy-key":
         try:
-            response = openai_client.embeddings.create(
-                input=[c["text"] for c in chunks_data],
-                model="text-embedding-3-small"
+            response = gemini_client.models.embed_content(
+                model="text-embedding-004",
+                contents=[c["text"] for c in chunks_data]
             )
-            embeddings = [data.embedding for data in response.data]
+            embeddings = [emb.values for emb in response.embeddings]
         except Exception as e:
             print(f"Failed to generate test embeddings: {e}")
             return None, None
     else:
         # Mock embeddings
-        embeddings = [[0.0] * 1536 for _ in chunks_data]
+        embeddings = [[0.0] * 768 for _ in chunks_data]
 
     for i, c in enumerate(chunks_data):
         db_session.add(Chunk(

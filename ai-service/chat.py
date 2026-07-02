@@ -1,13 +1,16 @@
 import json
 import os
 
-from openai import OpenAI
+from google import genai
+from google.genai import types
 
 from models import Chunk
 
 # Initialize client with dummy key if none provided to avoid import crash
-openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", "dummy-key"))
-CHEAP_MODEL = os.getenv("LLM_MODEL_CHEAP", "gpt-4o-mini")
+# We check both GEMINI_API_KEY and OPENAI_API_KEY to avoid breaking existing setups
+api_key = os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY") or "dummy-key"
+gemini_client = genai.Client(api_key=api_key)
+CHEAP_MODEL = os.getenv("LLM_MODEL_CHEAP", "gemini-2.5-flash")
 
 def generate_answer(query: str, chunks: list[Chunk]) -> tuple[str, list[int], float]:
     """
@@ -40,18 +43,20 @@ Respond in strictly valid JSON format with the following schema:
 }}
 """
 
-    if not os.getenv("OPENAI_API_KEY"):
+    if api_key == "dummy-key":
         # Mock response for local dev
         return "This is a mock answer based on chunk [1].", [1], 0.9
 
     try:
-        response = openai_client.chat.completions.create(
+        response = gemini_client.models.generate_content(
             model=CHEAP_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"},
-            temperature=0.0
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                temperature=0.0
+            )
         )
-        content = response.choices[0].message.content
+        content = response.text
         data = json.loads(content)
         return data.get("answer", ""), data.get("citations", []), float(data.get("confidence", 0.0))
     except Exception as e:
@@ -64,7 +69,7 @@ def check_faithfulness(query: str, answer: str, chunks: list[Chunk]) -> bool:
     LLM-as-a-judge: checks if the generated answer is strictly entailed by the chunks.
     Returns True if faithful, False if it hallucinated.
     """
-    if not os.getenv("OPENAI_API_KEY"):
+    if api_key == "dummy-key":
         return True # Mock pass
 
     context_str = ""
@@ -85,13 +90,15 @@ Respond in strictly valid JSON:
 }}
 """
     try:
-        response = openai_client.chat.completions.create(
+        response = gemini_client.models.generate_content(
             model=CHEAP_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"},
-            temperature=0.0
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                temperature=0.0
+            )
         )
-        content = response.choices[0].message.content
+        content = response.text
         data = json.loads(content)
         return bool(data.get("is_faithful", False))
     except Exception as e:
