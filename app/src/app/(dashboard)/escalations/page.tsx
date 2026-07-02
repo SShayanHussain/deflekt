@@ -104,7 +104,7 @@ export default async function EscalationsPage() {
                     Action: Review this query and add the answer to your connected Sources.
                   </div>
                   {!esc.resolved && (
-                    <form action={resolveAction}>
+                    <form action={resolveAction as unknown as (payload: FormData) => void}>
                       <Button type="submit" size="sm" variant="outline" className="h-8">
                         Mark as Resolved
                       </Button>

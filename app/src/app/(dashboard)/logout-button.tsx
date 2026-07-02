@@ -8,7 +8,7 @@ export function LogoutButton() {
   
   return (
     <DropdownMenuItem 
-      onClick={(e) => {
+      onClick={(e: React.MouseEvent) => {
         e.preventDefault();
         logout();
       }}
