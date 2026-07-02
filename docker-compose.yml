@@ -40,6 +40,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    env_file:
+      - ./app/.env
     environment:
       NODE_ENV: development
       DATABASE_URL: postgresql://deflekt:deflekt@db:5432/deflekt
@@ -64,6 +66,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    env_file:
+      - ./app/.env
     environment:
       DATABASE_URL: postgresql://deflekt:deflekt@db:5432/deflekt
       REDIS_URL: redis://redis:6379
