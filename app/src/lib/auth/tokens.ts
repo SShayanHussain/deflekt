@@ -100,7 +100,7 @@ export function refreshCookieOptions() {
   return {
     name: "deflekt_refresh",
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: false, // process.env.NODE_ENV === "production",
     sameSite: "lax" as const,
     path: "/",
     maxAge: getRefreshTTL(),
