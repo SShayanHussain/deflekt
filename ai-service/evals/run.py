@@ -22,10 +22,11 @@ openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", "dummy-key"))
 
 def setup_test_data(db_session):
     print("Setting up test data...")
+    from sqlalchemy.sql import text
+
     from db import engine
     from models import Base
-    from sqlalchemy.sql import text
-    
+
     # Ensure vector extension exists
     try:
         db_session.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
@@ -35,7 +36,7 @@ def setup_test_data(db_session):
 
     # Create all tables defined in models.py
     Base.metadata.create_all(bind=engine)
-    
+
     # Manually create workspaces table if not exists (managed by app)
     try:
         db_session.execute(text("CREATE TABLE IF NOT EXISTS workspaces (id UUID PRIMARY KEY, name VARCHAR, slug VARCHAR, created_at TIMESTAMP, updated_at TIMESTAMP)"))
