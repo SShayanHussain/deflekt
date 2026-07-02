@@ -4,8 +4,8 @@ import traceback
 from datetime import UTC, datetime
 
 import boto3
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from google import genai
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from .celery_app import celery_app
 from .db import SessionLocal
