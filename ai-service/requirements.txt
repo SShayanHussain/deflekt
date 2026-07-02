@@ -1,0 +1,16 @@
+# Core
+fastapi==0.115.12
+uvicorn[standard]==0.34.3
+
+# Phase 2 Ingestion
+celery
+redis==5.0.3
+openai>=1.14.0
+langchain-text-splitters==0.0.1
+pypdf==4.1.0
+beautifulsoup4==4.12.3
+sqlalchemy>=2.0.36
+psycopg[binary]
+pgvector==0.2.5
+boto3
+python-dotenv==1.0.1

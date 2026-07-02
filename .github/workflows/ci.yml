@@ -1,0 +1,128 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  APP_IMAGE_NAME: ${{ github.repository }}/deflekt-app
+  AI_IMAGE_NAME: ${{ github.repository }}/deflekt-ai
+
+jobs:
+  lint-test-app:
+    name: App — Lint & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test --if-present
+
+  lint-test-ai:
+    name: AI Service — Lint & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ai-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+      - run: pip install ruff pytest httpx
+      - run: ruff check .
+      - run: pytest
+
+      # The eval harness acts as our CI Gate
+      - name: Run Evals (CI Gate)
+        run: python -m evals.run
+
+  build-push:
+    name: Build & Push Images
+    needs: [lint-test-app, lint-test-ai]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push App image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./app
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.APP_IMAGE_NAME }}:latest
+          
+      - name: Build and push AI Service image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ai-service
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.AI_IMAGE_NAME }}:latest
+
+  deploy:
+    name: Deploy to EC2
+    needs: build-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # We copy the docker-compose.prod.yml and nginx config to the server
+      - name: Copy files via scp
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "docker-compose.prod.yml,nginx/nginx.conf"
+          target: "/home/${{ secrets.USERNAME }}/deflekt"
+
+      # We run SSH commands to pull the latest images and start them
+      - name: Execute remote ssh commands to deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.USERNAME }}/deflekt
+            # Login to GHCR on the server to pull private packages if necessary
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # Export environment variables for docker-compose
+            export GITHUB_REPOSITORY=${{ github.repository }}
+            export DATABASE_URL=${{ secrets.DATABASE_URL }}
+            export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            
+            # Pull latest images and restart
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            
+            # Clean up old images
+            docker image prune -af

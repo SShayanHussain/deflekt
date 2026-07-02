@@ -1,0 +1,17 @@
+[
+  {
+    "question": "How do I reset my password?",
+    "gold_answer": "To reset your password, click on 'Forgot Password' on the login screen and follow the instructions sent to your email.",
+    "expected_chunk_ids": []
+  },
+  {
+    "question": "Can I invite external guests to my workspace?",
+    "gold_answer": "No, currently Deflekt only supports inviting team members with an email from your organization's domain.",
+    "expected_chunk_ids": []
+  },
+  {
+    "question": "What is the confidence threshold?",
+    "gold_answer": "The confidence threshold determines whether the AI will answer a question or escalate it. If the AI's confidence is below the threshold, it will hand off the conversation to a human.",
+    "expected_chunk_ids": []
+  }
+]

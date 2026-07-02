@@ -1,0 +1,9 @@
+{
+  "name": "deflekt",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "app",
+    "packages/*"
+  ]
+}
