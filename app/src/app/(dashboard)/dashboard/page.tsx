@@ -112,7 +112,7 @@ export default async function DashboardPage() {
               {recentEscalations.map((esc) => (
                 <div key={esc.id} className="flex items-start justify-between border-b border-border/40 pb-4 last:border-0 last:pb-0">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">"{esc.userMessage}"</p>
+                    <p className="text-sm font-medium leading-relaxed">&quot;{esc.userMessage}&quot;</p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(esc.createdAt).toLocaleString()} — {esc.reason}
                     </p>

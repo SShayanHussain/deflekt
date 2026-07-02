@@ -93,7 +93,7 @@ export default async function EscalationsPage() {
                     U
                   </div>
                   <div className="space-y-1 pt-1 flex-1">
-                    <p className="text-sm font-medium leading-relaxed">"{esc.userMessage}"</p>
+                    <p className="text-sm font-medium leading-relaxed">&quot;{esc.userMessage}&quot;</p>
                     <p className="text-xs text-muted-foreground">
                       <span className="font-semibold text-foreground/70">Reason for escalation:</span> {esc.reason}
                     </p>

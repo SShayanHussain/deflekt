@@ -1,6 +1,8 @@
-import os
 import json
+import os
+
 from openai import OpenAI
+
 from models import Chunk
 
 # Initialize client with dummy key if none provided to avoid import crash

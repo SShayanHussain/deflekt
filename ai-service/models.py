@@ -1,8 +1,11 @@
 import uuid
-from sqlalchemy import Column, String, Text, DateTime, JSON
-from sqlalchemy.dialects.postgresql import UUID
+
 from pgvector.sqlalchemy import Vector
+from sqlalchemy import JSON, Column, DateTime, String, Text
+from sqlalchemy.dialects.postgresql import UUID
+
 from db import Base
+
 
 class Document(Base):
     __tablename__ = "documents"

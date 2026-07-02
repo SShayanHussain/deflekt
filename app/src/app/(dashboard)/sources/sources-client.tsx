@@ -47,6 +47,7 @@ export function SourcesClient({
       const interval = setInterval(fetchSources, 3000);
       return () => clearInterval(interval);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sources, workspaceId]);
 
   const handleUpload = async (e: React.FormEvent) => {

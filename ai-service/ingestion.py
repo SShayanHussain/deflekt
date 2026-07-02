@@ -1,13 +1,15 @@
 import os
-import boto3
 import tempfile
 import traceback
-from datetime import datetime, timezone
-from openai import OpenAI
+from datetime import UTC, datetime
+
+import boto3
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from openai import OpenAI
+
 from .celery_app import celery_app
 from .db import SessionLocal
-from .models import Document, Chunk
+from .models import Chunk, Document
 
 s3_client = boto3.client(
     "s3",
@@ -32,11 +34,11 @@ def parse_file(file_path: str, doc_type: str) -> str:
         reader = PdfReader(file_path)
         return "\n".join(page.extract_text() for page in reader.pages if page.extract_text())
     elif doc_type == "md":
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             return f.read()
     elif doc_type == "html":
         from bs4 import BeautifulSoup
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             soup = BeautifulSoup(f.read(), "html.parser")
             return soup.get_text(separator="\n")
     return ""
@@ -45,7 +47,7 @@ def get_embeddings(texts: list[str]) -> list[list[float]]:
     if not os.getenv("OPENAI_API_KEY"):
         # For local dev without API key, just generate dummy embeddings
         return [[0.0] * 1536 for _ in texts]
-        
+
     response = openai_client.embeddings.create(
         input=texts,
         model="text-embedding-3-small"
@@ -63,7 +65,7 @@ def ingest_document(document_id: str):
     try:
         # Mark as processing
         doc.status = "processing"
-        doc.updated_at = datetime.now(timezone.utc)
+        doc.updated_at = datetime.now(UTC)
         db.commit()
 
         # Download from S3
@@ -75,12 +77,12 @@ def ingest_document(document_id: str):
                 # If mock, we just use a dummy text
                 file_path = None
                 raw_text = "This is a mock document because no AWS credentials were provided."
-        
+
         # Parse
         if file_path:
             raw_text = parse_file(file_path, doc.type)
             os.remove(file_path)
-            
+
         if not raw_text.strip():
             raise ValueError("No text extracted from document")
 
@@ -108,14 +110,14 @@ def ingest_document(document_id: str):
 
         # Mark as completed
         doc.status = "completed"
-        doc.updated_at = datetime.now(timezone.utc)
+        doc.updated_at = datetime.now(UTC)
         db.commit()
 
-    except Exception as e:
+    except Exception:
         db.rollback()
         doc.status = "failed"
         doc.error_message = traceback.format_exc()
-        doc.updated_at = datetime.now(timezone.utc)
+        doc.updated_at = datetime.now(UTC)
         db.commit()
     finally:
         db.close()

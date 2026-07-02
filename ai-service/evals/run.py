@@ -1,8 +1,8 @@
 import json
 import os
-import uuid
 import sys
-from pprint import pprint
+import uuid
+
 from dotenv import load_dotenv
 
 env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'app', '.env')
@@ -11,11 +11,12 @@ load_dotenv(env_path)
 # Ensure the parent directory is in path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from db import SessionLocal
-from models import Document, Chunk
-from retrieval import vector_search
-from chat import generate_answer, check_faithfulness
 from openai import OpenAI
+
+from chat import check_faithfulness, generate_answer
+from db import SessionLocal
+from models import Chunk, Document
+from retrieval import vector_search
 
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", "dummy-key"))
 
@@ -23,7 +24,7 @@ def setup_test_data(db_session):
     print("Setting up test data...")
     workspace_id = uuid.uuid4()
     doc_id = uuid.uuid4()
-    
+
     from sqlalchemy.sql import text
     try:
         db_session.execute(text("INSERT INTO workspaces (id, name, slug, created_at, updated_at) VALUES (:id, 'Test WS', 'test-ws-' || :id, now(), now())"), {"id": workspace_id})
@@ -66,7 +67,7 @@ def setup_test_data(db_session):
             content=c["text"],
             embedding=embeddings[i]
         ))
-    
+
     db_session.commit()
     return workspace_id, chunks_data
 
@@ -74,7 +75,7 @@ def teardown_test_data(db_session, workspace_id):
     print("Tearing down test data...")
     db_session.query(Chunk).filter(Chunk.workspace_id == workspace_id).delete()
     db_session.query(Document).filter(Document.workspace_id == workspace_id).delete()
-    
+
     from sqlalchemy.sql import text
     db_session.execute(text("DELETE FROM workspaces WHERE id = :id"), {"id": workspace_id})
     db_session.commit()
@@ -87,7 +88,7 @@ def run_evals():
         return
 
     try:
-        with open(os.path.join(os.path.dirname(__file__), "golden_set.json"), "r") as f:
+        with open(os.path.join(os.path.dirname(__file__), "golden_set.json")) as f:
             golden_set = json.load(f)
 
         # Update golden set with expected chunk IDs
@@ -107,30 +108,30 @@ def run_evals():
 
         for item in golden_set:
             q = item["question"]
-            gold = item["gold_answer"]
+            item["gold_answer"]
             expected_ids = item["expected_chunk_ids"]
 
             # 1. Retrieval
             retrieved = vector_search(db, workspace_id, q, top_k=3)
             retrieved_ids = [str(c.id) for c in retrieved]
-            
+
             # Recall@k
             if any(eid in retrieved_ids for eid in expected_ids):
                 results["recall_at_3"] += 1
 
             # 2. Generation
             answer, citations, confidence = generate_answer(q, retrieved)
-            
+
             # 3. Confidence Gate
             escalated = confidence < 0.72
             if escalated:
                 results["escalation_rate"] += 1
-            
+
             # 4. Faithfulness (LLM as judge)
             is_faithful = check_faithfulness(q, answer, retrieved)
             if is_faithful:
                 results["faithfulness"] += 1
-            
+
             # 5. Citation Accuracy
             # Check if emitted citations [1] etc actually map to the chunks that contain the info
             # For simplicity, if it cites at least one retrieved chunk, we give it a point.

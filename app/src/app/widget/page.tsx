@@ -87,11 +87,11 @@ function WidgetChatContent() {
       };
 
       setMessages((prev) => [...prev, aiMessage]);
-    } catch (err: any) {
+    } catch (err) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "We encountered an error processing your request. " + err.message,
+        content: "We encountered an error processing your request. " + (err instanceof Error ? err.message : "Unknown error"),
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {

@@ -13,7 +13,7 @@ export default async function PlaygroundPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Playground</h1>
         <p className="text-muted-foreground text-lg mt-2">
-          Test your assistant's answers against your current knowledge base before deploying.
+          Test how your AI agent answers questions using the documents you&apos;ve uploaded.
         </p>
       </div>
 

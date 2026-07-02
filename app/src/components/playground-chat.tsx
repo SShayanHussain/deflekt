@@ -72,11 +72,11 @@ export default function PlaygroundChat({ workspaceId }: { workspaceId: string })
       };
 
       setMessages((prev) => [...prev, aiMessage]);
-    } catch (err: any) {
+    } catch (err) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "Error: " + err.message,
+        content: "Error: " + (err instanceof Error ? err.message : "Unknown error"),
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {

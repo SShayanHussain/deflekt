@@ -76,11 +76,11 @@ export default async function ConversationsPage() {
                           
                           {msg.role === "assistant" && (
                             <div className="flex flex-wrap gap-2 pt-2 text-xs">
-                              {msg.citations && Array.isArray(msg.citations) && msg.citations.length > 0 && (
+                              {Array.isArray(msg.citations) && msg.citations.length > 0 && (
                                 <div className="flex items-center gap-1 text-muted-foreground">
                                   <span className="font-medium">Sources:</span>
                                   {msg.citations.map((c, i) => (
-                                    <Badge key={i} variant="outline" className="text-[10px] h-4 px-1.5 py-0 bg-background">[{c}]</Badge>
+                                    <Badge key={i} variant="outline" className="text-[10px] h-4 px-1.5 py-0 bg-background">[{c as React.ReactNode}]</Badge>
                                   ))}
                                 </div>
                               )}

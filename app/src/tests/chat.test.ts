@@ -32,7 +32,7 @@ const { POST } = await import("../app/api/chat/route");
 // Mock the fetch call to the AI service
 global.fetch = vi.fn();
 
-function createRequest(body: any, ip: string = "127.0.0.1") {
+function createRequest(body: unknown, ip: string = "127.0.0.1") {
   return new NextRequest("http://localhost:3000/api/chat", {
     method: "POST",
     headers: {
@@ -81,7 +81,7 @@ describe("POST /api/chat", () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockAiResponse,
-    } as any);
+    } as unknown as Response);
 
     const req = createRequest({ workspaceId: "ws-1", query: "Hello" });
     const res = await POST(req);
@@ -102,7 +102,7 @@ describe("POST /api/chat", () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: false,
       status: 500
-    } as any);
+    } as unknown as Response);
 
     const req = createRequest({ workspaceId: "ws-1", query: "Hello" });
     const res = await POST(req);

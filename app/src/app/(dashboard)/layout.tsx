@@ -50,7 +50,7 @@ export default async function DashboardLayout({
     { href: "/conversations", icon: MessageSquare, label: "Conversations" },
     { href: "/escalations", icon: AlertTriangle, label: "Escalations" },
     { href: "/playground", icon: TerminalSquare, label: "Playground" },
-    { href: "/widget", icon: Code, label: "Widget" },
+    { href: "/widget-setup", icon: Code, label: "Widget" },
     { href: "/settings/profile", icon: Settings, label: "Settings" },
   ];
 

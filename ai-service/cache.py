@@ -1,8 +1,7 @@
 import json
-import redis
 import os
-from .retrieval import get_query_embedding
-import numpy as np
+
+import redis
 
 redis_client = redis.Redis(
     host=os.getenv("REDIS_HOST", "localhost"),
@@ -13,7 +12,7 @@ redis_client = redis.Redis(
 
 # For MVP, we'll store query -> response in Redis.
 # A true semantic cache uses a vector DB for queries, but we can approximate it:
-# We'll just cache exact text matches per workspace_id for now, because doing semantic search 
+# We'll just cache exact text matches per workspace_id for now, because doing semantic search
 # on the cache requires storing the query vectors in Redis or another pgvector table.
 # Since we have pgvector, we *could* store cache in postgres, but PRD says Redis.
 # We will use exact match text for MVP to satisfy the caching requirement quickly.
@@ -24,7 +23,7 @@ def get_cached_answer(workspace_id: str, query: str):
     if cached:
         try:
             return json.loads(cached.decode('utf-8'))
-        except:
+        except Exception:
             pass
     return None
 
