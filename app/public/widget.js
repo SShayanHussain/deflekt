@@ -61,9 +61,9 @@
   document.head.appendChild(style);
 
   // Extract configuration
-  const scriptTag = document.currentScript;
-  const workspaceId = scriptTag.getAttribute('data-workspace') || window.DeflektConfig?.workspaceId;
-  const hostUrl = scriptTag.src.split('/widget.js')[0] || 'http://localhost:3000';
+  const scriptTag = document.currentScript || document.querySelector('script[src*="widget.js"]');
+  const workspaceId = scriptTag?.getAttribute('data-workspace') || window.DeflektConfig?.workspaceId;
+  const hostUrl = scriptTag?.src.split('/widget.js')[0] || 'http://localhost:3000';
 
   if (!workspaceId) {
     console.error("Deflekt Widget: data-workspace attribute is missing.");

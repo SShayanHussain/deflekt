@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Test Site</title>
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 800px; margin: 0 auto; line-height: 1.5; }
+        .hero { background: #f3f4f6; padding: 3rem; border-radius: 12px; margin-bottom: 2rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>My Awesome SaaS</h1>
+        <p>This is a completely separate website used to test the Deflekt widget embed.</p>
+    </div>
+    
+    <h2>Features</h2>
+    <ul>
+        <li>Widget is injected via script tag</li>
+        <li>Connects back to localhost:3000</li>
+        <li>Should appear in the bottom right corner</li>
+    </ul>
+
+    <!-- Injected Widget Script -->
+    <script 
+       src="http://localhost:3000/widget.js" 
+       data-workspace="b442ddf9-60c3-40d9-b385-89de7cebce8f"
+       defer
+    ></script>
+</body>
+</html>
