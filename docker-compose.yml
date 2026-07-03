@@ -82,3 +82,20 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  # --- Celery Worker for Background AI Tasks ---
+  ai-worker:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    command: ["celery", "-A", "celery_app", "worker", "--loglevel=info"]
+    env_file:
+      - ./app/.env
+    environment:
+      DATABASE_URL: postgresql://deflekt:deflekt@db:5432/deflekt
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
