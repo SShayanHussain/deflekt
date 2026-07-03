@@ -34,7 +34,7 @@ export default async function WidgetSetupPage() {
             Installation Snippet
           </CardTitle>
           <CardDescription>
-            Copy and paste this snippet into your website's HTML, ideally just before the closing <code>&lt;/body&gt;</code> tag.
+            Copy and paste this snippet into your website&apos;s HTML, ideally just before the closing <code>&lt;/body&gt;</code> tag.
           </CardDescription>
         </CardHeader>
         <CardContent>
