@@ -95,11 +95,11 @@ export default async function DashboardLayout({
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/settings/profile" className="w-full cursor-pointer">Profile Settings</Link>
+                <DropdownMenuItem>
+                  <Link href="/settings/profile">Profile Settings</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/settings/workspace" className="w-full cursor-pointer">Workspace Settings</Link>
+                <DropdownMenuItem>
+                  <Link href="/settings/workspace">Workspace Settings</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <LogoutButton />
