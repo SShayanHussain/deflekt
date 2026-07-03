@@ -25,6 +25,7 @@ import { db } from "@/lib/db";
 import { workspaces } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { LogoutButton } from "./logout-button";
+import { ProfileMenuItems } from "./profile-menu-items";
 
 export default async function DashboardLayout({
   children,
@@ -95,12 +96,7 @@ export default async function DashboardLayout({
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => window.location.href = "/settings/profile"} className="cursor-pointer">
-                  Profile Settings
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => window.location.href = "/settings/workspace"} className="cursor-pointer">
-                  Workspace Settings
-                </DropdownMenuItem>
+                <ProfileMenuItems />
                 <DropdownMenuSeparator />
                 <LogoutButton />
               </DropdownMenuContent>
