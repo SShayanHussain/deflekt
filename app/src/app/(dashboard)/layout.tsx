@@ -77,15 +77,17 @@ export default async function DashboardLayout({
           
           <div className="flex items-center gap-x-4 lg:gap-x-6">
             <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                  <Avatar className="h-9 w-9 border border-border">
-                    <AvatarFallback className="bg-primary/10 text-primary">
-                      {session.user.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                    <Avatar className="h-9 w-9 border border-border">
+                      <AvatarFallback className="bg-primary/10 text-primary">
+                        {session.user.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                }
+              />
               <DropdownMenuContent className="w-56" align="end">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">

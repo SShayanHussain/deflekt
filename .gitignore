@@ -34,3 +34,6 @@ htmlcov/
 # Docker volumes (local dev)
 .pgdata/
 .redisdata/
+
+# Local Claude Code tooling state (worktrees, launch config)
+.claude/
