@@ -7,9 +7,9 @@ import boto3
 from google import genai
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from .celery_app import celery_app
-from .db import SessionLocal
-from .models import Chunk, Document
+from celery_app import celery_app
+from db import SessionLocal
+from models import Chunk, Document
 
 s3_client = boto3.client(
     "s3",

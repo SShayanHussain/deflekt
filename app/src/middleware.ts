@@ -26,6 +26,7 @@ const PUBLIC_PATHS = [
   "/api/auth/reset-password",
   "/api/auth/verify-email",
   "/api/health",
+  "/api/chat", // Public API route used by external widget
 ];
 
 export async function middleware(request: NextRequest) {
