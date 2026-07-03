@@ -1,6 +1,7 @@
 import os
 
 from google import genai
+from google.genai import types
 from sqlalchemy.orm import Session
 
 from models import Chunk
@@ -9,13 +10,20 @@ from models import Chunk
 api_key = os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY") or "dummy-key"
 gemini_client = genai.Client(api_key=api_key)
 
+# Embedding model + dimension. The `chunks.embedding` column is vector(768), so
+# we pin the output dimensionality to match. Query and document embeddings MUST
+# use the same model + dimension to share a vector space.
+EMBED_MODEL = os.getenv("EMBEDDING_MODEL", "gemini-embedding-001")
+EMBED_DIM = int(os.getenv("EMBEDDING_DIM", "768"))
+
 def get_query_embedding(query: str) -> list[float]:
     if api_key == "dummy-key":
-        return [0.0] * 768
+        return [0.0] * EMBED_DIM
 
     response = gemini_client.models.embed_content(
-        model="text-embedding-004",
-        contents=query
+        model=EMBED_MODEL,
+        contents=query,
+        config=types.EmbedContentConfig(output_dimensionality=EMBED_DIM),
     )
     return response.embeddings[0].values
 

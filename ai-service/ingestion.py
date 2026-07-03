@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 
 import boto3
 from google import genai
+from google.genai import types
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from celery_app import celery_app
@@ -21,6 +22,11 @@ BUCKET_NAME = os.getenv("AWS_S3_BUCKET")
 
 api_key = os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY")
 gemini_client = genai.Client(api_key=api_key) if api_key else None
+
+# Must match retrieval.py — query and document embeddings share a vector space,
+# and the dimension must match the vector(768) column in the chunks table.
+EMBED_MODEL = os.getenv("EMBEDDING_MODEL", "gemini-embedding-001")
+EMBED_DIM = int(os.getenv("EMBEDDING_DIM", "768"))
 
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000,
@@ -47,13 +53,20 @@ def parse_file(file_path: str, doc_type: str) -> str:
 def get_embeddings(texts: list[str]) -> list[list[float]]:
     if not gemini_client:
         # For local dev without API key, just generate dummy embeddings
-        return [[0.0] * 768 for _ in texts]
+        return [[0.0] * EMBED_DIM for _ in texts]
 
-    response = gemini_client.models.embed_content(
-        model="text-embedding-004",
-        contents=texts
-    )
-    return [emb.values for emb in response.embeddings]
+    # Embed one chunk per request. gemini-embedding-001 does not accept batched
+    # inputs on the Gemini API, so a loop is the portable path (ingestion runs
+    # in a background worker, so the extra latency is acceptable).
+    embeddings: list[list[float]] = []
+    for text in texts:
+        response = gemini_client.models.embed_content(
+            model=EMBED_MODEL,
+            contents=text,
+            config=types.EmbedContentConfig(output_dimensionality=EMBED_DIM),
+        )
+        embeddings.append(response.embeddings[0].values)
+    return embeddings
 
 @celery_app.task(name="ingest_document")
 def ingest_document(document_id: str):
