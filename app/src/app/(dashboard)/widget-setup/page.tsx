@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth/session";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Code } from "lucide-react";
+import { SnippetCopier } from "./snippet-copier";
 
 export default async function WidgetSetupPage() {
   const session = await getSession();
@@ -33,17 +34,13 @@ export default async function WidgetSetupPage() {
             Installation Snippet
           </CardTitle>
           <CardDescription>
-            Copy and paste this snippet into the <code>&lt;body&gt;</code> of your website.
+            Copy and paste this snippet into your website's HTML, ideally just before the closing <code>&lt;/body&gt;</code> tag.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="relative">
-            <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm font-mono border border-border">
-              <code>{snippet}</code>
-            </pre>
-          </div>
+          <SnippetCopier snippet={snippet} />
           <div className="mt-6 text-sm text-muted-foreground">
-            <p><strong>Note:</strong> The widget will only answer questions based on the documents you&apos;ve uploaded in the Sources tab.</p>
+            <p><strong>Note:</strong> A chat bubble will appear in the bottom-right corner of your site. The widget will only answer questions based on the documents you&apos;ve uploaded in the Sources tab.</p>
           </div>
         </CardContent>
       </Card>
