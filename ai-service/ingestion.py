@@ -63,31 +63,34 @@ def ingest_document(document_id: str):
         db.close()
         return
 
+    downloaded_tmp: str | None = None
     try:
         # Mark as processing
         doc.status = "processing"
         doc.updated_at = datetime.now(UTC)
         db.commit()
 
-        # Fetch File
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            if doc.url.startswith("local://"):
-                import shutil
-                local_source_path = os.path.join("/app/uploads", doc.url.replace("local://", ""))
-                shutil.copyfile(local_source_path, tmp.name)
-                file_path = tmp.name
-            elif not doc.url.startswith("mock-s3-key") and BUCKET_NAME:
-                s3_client.download_file(BUCKET_NAME, doc.url, tmp.name)
-                file_path = tmp.name
-            else:
-                # If mock, we just use a dummy text
-                file_path = None
-                raw_text = "This is a mock document because no AWS credentials were provided."
+        # Resolve the source file. We never fabricate mock text: if the file
+        # cannot be fetched we fail loudly so a bad document is visible in the
+        # UI instead of silently poisoning the vector index with junk content.
+        if doc.url.startswith("local://"):
+            file_path = os.path.join("/app/uploads", doc.url[len("local://"):])
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"Local source file not found: {file_path}")
+        elif BUCKET_NAME and not doc.url.startswith("mock-s3-key"):
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f".{doc.type}") as tmp:
+                downloaded_tmp = tmp.name
+            s3_client.download_file(BUCKET_NAME, doc.url, downloaded_tmp)
+            file_path = downloaded_tmp
+        else:
+            raise ValueError(
+                "No storage backend available to fetch this document. Configure "
+                "AWS S3 (AWS_S3_BUCKET + credentials) or re-upload so the file is "
+                f"saved to local storage. (url={doc.url!r})"
+            )
 
         # Parse
-        if file_path:
-            raw_text = parse_file(file_path, doc.type)
-            os.remove(file_path)
+        raw_text = parse_file(file_path, doc.type)
 
         if not raw_text.strip():
             raise ValueError("No text extracted from document")
@@ -99,6 +102,10 @@ def ingest_document(document_id: str):
 
         # Embed (in batches of 100 to respect API limits if needed, but for MVP one shot is fine for small docs)
         embeddings = get_embeddings(chunks)
+
+        # Idempotent re-ingest: drop any chunks previously produced for this
+        # document (e.g. legacy mock chunks) before writing the fresh set.
+        db.query(Chunk).filter(Chunk.document_id == doc.id).delete()
 
         # Save chunks
         db_chunks = []
@@ -119,6 +126,14 @@ def ingest_document(document_id: str):
         doc.updated_at = datetime.now(UTC)
         db.commit()
 
+        # Invalidate the tenant's semantic cache so previously cached answers
+        # (including any stale/mock answers) are recomputed against fresh docs.
+        try:
+            from cache import invalidate_tenant_cache
+            invalidate_tenant_cache(str(doc.workspace_id))
+        except Exception as cache_err:  # cache failures must not fail ingestion
+            print(f"Cache invalidation failed for {doc.workspace_id}: {cache_err}", flush=True)
+
     except Exception:
         db.rollback()
         doc.status = "failed"
@@ -126,4 +141,8 @@ def ingest_document(document_id: str):
         doc.updated_at = datetime.now(UTC)
         db.commit()
     finally:
+        # Only remove files we downloaded to a temp path; never delete the
+        # user's uploaded file in the shared local-storage volume.
+        if downloaded_tmp and os.path.exists(downloaded_tmp):
+            os.remove(downloaded_tmp)
         db.close()

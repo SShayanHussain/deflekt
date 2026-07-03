@@ -15,6 +15,17 @@ services:
       timeout: 5s
       retries: 5
 
+  # --- DB Migrator (one-shot) ---
+  # Applies Drizzle migrations against RDS, then exits. Invoked explicitly in
+  # the deploy pipeline via `docker compose run --rm migrate` before `up -d`.
+  # Behind the "migrate" profile so a normal `up -d` does not start it.
+  migrate:
+    image: ghcr.io/sshayanhussain/deflekt-migrate:latest
+    profiles: ["migrate"]
+    restart: "no"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+
   # --- Next.js App ---
   app:
     image: ghcr.io/sshayanhussain/deflekt-app:latest

@@ -110,6 +110,14 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.REPO_LC }}-ai:latest
 
+      - name: Build and push DB Migrator image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./app
+          file: ./app/Dockerfile.migrate
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.REPO_LC }}-migrate:latest
+
   deploy:
     name: Deploy to EC2
     needs: build-push
@@ -150,6 +158,7 @@ jobs:
           command_timeout: 30m
           envs: DATABASE_URL,OPENAI_API_KEY,GEMINI_API_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_S3_BUCKET,AWS_REGION
           script: |
+            set -e
             cd /home/${{ secrets.USERNAME }}/deflekt
             # Login to GHCR on the server to pull private packages if necessary
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -167,9 +176,18 @@ jobs:
             echo "AWS_REGION=$(echo "$AWS_REGION" | sed 's/\$/$$/g')" >> .env
             echo "GITHUB_REPOSITORY=$(echo "$GITHUB_REPOSITORY" | sed 's/\$/$$/g')" >> .env
             
-            # Pull latest images and restart
-            docker compose -f docker-compose.prod.yml pull
+            # Pull latest images and restart. Include the "migrate" profile so
+            # the migrator image is refreshed too (otherwise `run` would reuse a
+            # stale local copy after the first deploy).
+            docker compose -f docker-compose.prod.yml --profile migrate pull
+
+            # Apply database migrations before starting the app. This is a
+            # one-shot container that is idempotent and baselines a pre-existing
+            # database. `set -e` above ensures a migration failure aborts the
+            # deploy WITHOUT restarting the app (prod stays on the old version).
+            docker compose -f docker-compose.prod.yml run --rm migrate
+
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
-            
+
             # Clean up old images
             docker image prune -af

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Standalone Node scripts (run outside the Next.js app, e.g. DB migrator).
+    "scripts/**",
   ]),
 ]);
 

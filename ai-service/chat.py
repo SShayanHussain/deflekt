@@ -51,8 +51,14 @@ Respond in strictly valid JSON format with the following schema:
 """
 
     if api_key == "dummy-key":
-        # Mock response for local dev
-        return "This is a mock answer based on chunk [1].", [1], 0.9
+        # No LLM key configured. Never fabricate a confident answer — return
+        # zero confidence so the caller escalates to a human instead.
+        return (
+            "I can't answer that right now because the AI service is not "
+            "configured. Please contact support.",
+            [],
+            0.0,
+        )
 
     try:
         response = gemini_client.models.generate_content(

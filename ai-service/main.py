@@ -32,18 +32,25 @@ class ChatRequest(BaseModel):
     workspace_id: str
     query: str
 
+# Confidence below this threshold escalates to a human.
+CONFIDENCE_THRESHOLD = 0.72
+HANDOFF_MESSAGE = (
+    "I'm not confident I can answer that accurately, so I'm handing this to a "
+    "human who can help."
+)
+
 @app.post("/chat")
 async def chat(req: ChatRequest) -> dict:
     """Handles chat generation, retrieval, and confidence gating."""
     from cache import get_cached_answer, set_cached_answer
-    from chat import generate_answer
+    from chat import check_faithfulness, generate_answer
     from db import SessionLocal
     from retrieval import rerank_chunks, vector_search
 
     # 1. Check semantic cache
     cached = get_cached_answer(req.workspace_id, req.query)
     if cached:
-        return {"data": {"answer": cached["answer"], "citations": cached["citations"], "confidence": cached["confidence"], "escalated": cached["confidence"] < 0.72}}
+        return {"data": {"answer": cached["answer"], "citations": cached["citations"], "confidence": cached["confidence"], "escalated": cached["confidence"] < CONFIDENCE_THRESHOLD}}
 
     db = SessionLocal()
     try:
@@ -53,7 +60,15 @@ async def chat(req: ChatRequest) -> dict:
 
         # 3. Generate Answer & Compute Confidence
         answer, citations, confidence = generate_answer(req.query, chunks)
-        escalated = confidence < 0.72
+
+        # 3b. Grounding gate — verify the answer is entailed by the retrieved
+        # chunks before we serve it. This is a hard rule: never emit an
+        # ungrounded answer. We only pay for this LLM check when the model was
+        # otherwise confident enough to answer.
+        if chunks and confidence >= CONFIDENCE_THRESHOLD and not check_faithfulness(req.query, answer, chunks):
+            answer, citations, confidence = HANDOFF_MESSAGE, [], 0.0
+
+        escalated = confidence < CONFIDENCE_THRESHOLD
 
         # 4. Cache the result
         set_cached_answer(req.workspace_id, req.query, answer, citations, confidence)
