@@ -55,7 +55,7 @@ export default async function DashboardLayout({
   ];
 
   return (
-    <AuthProvider>
+    <AuthProvider initialUser={session.user} initialWorkspaceId={session.workspaceId}>
       <div className="flex min-h-screen flex-col bg-muted/20">
         {/* Top bar */}
         <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-6 border-b border-border/40 bg-background/95 px-4 sm:px-6 lg:px-8 backdrop-blur">

@@ -21,9 +21,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
+export function AuthProvider({ 
+  children,
+  initialUser = null,
+  initialWorkspaceId = null
+}: { 
+  children: ReactNode;
+  initialUser?: User | null;
+  initialWorkspaceId?: string | null;
+}) {
+  const [user, setUser] = useState<User | null>(initialUser);
+  const [workspaceId, setWorkspaceId] = useState<string | null>(initialWorkspaceId);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
