@@ -157,14 +157,15 @@ jobs:
             export GITHUB_REPOSITORY="$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
             
             # Guarantee environment variables by writing a literal .env file
-            echo "DATABASE_URL=$DATABASE_URL" > .env
-            echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env
-            echo "GEMINI_API_KEY=$GEMINI_API_KEY" >> .env
-            echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" >> .env
-            echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" >> .env
-            echo "AWS_S3_BUCKET=$AWS_S3_BUCKET" >> .env
-            echo "AWS_REGION=$AWS_REGION" >> .env
-            echo "GITHUB_REPOSITORY=$GITHUB_REPOSITORY" >> .env
+            # We must escape $ as $$ so docker-compose doesn't try to interpolate passwords
+            echo "DATABASE_URL=$(echo "$DATABASE_URL" | sed 's/\$/$$/g')" > .env
+            echo "OPENAI_API_KEY=$(echo "$OPENAI_API_KEY" | sed 's/\$/$$/g')" >> .env
+            echo "GEMINI_API_KEY=$(echo "$GEMINI_API_KEY" | sed 's/\$/$$/g')" >> .env
+            echo "AWS_ACCESS_KEY_ID=$(echo "$AWS_ACCESS_KEY_ID" | sed 's/\$/$$/g')" >> .env
+            echo "AWS_SECRET_ACCESS_KEY=$(echo "$AWS_SECRET_ACCESS_KEY" | sed 's/\$/$$/g')" >> .env
+            echo "AWS_S3_BUCKET=$(echo "$AWS_S3_BUCKET" | sed 's/\$/$$/g')" >> .env
+            echo "AWS_REGION=$(echo "$AWS_REGION" | sed 's/\$/$$/g')" >> .env
+            echo "GITHUB_REPOSITORY=$(echo "$GITHUB_REPOSITORY" | sed 's/\$/$$/g')" >> .env
             
             # Pull latest images and restart
             docker compose -f docker-compose.prod.yml pull
