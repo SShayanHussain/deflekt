@@ -77,13 +77,13 @@ export async function POST(
 
     // Trigger AI service
     try {
-      fetch(`${env.AI_SERVICE_URL}/ingest`, {
+      await fetch(`${env.AI_SERVICE_URL}/ingest`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ document_id: doc.id }),
-      }).catch((e) => console.error("Failed to trigger ingestion task:", e));
+      });
     } catch (e) {
       console.error("Failed to dispatch ingestion:", e);
     }
