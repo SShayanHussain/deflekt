@@ -95,11 +95,11 @@ export default async function DashboardLayout({
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Link href="/settings/profile">Profile Settings</Link>
+                <DropdownMenuItem onClick={() => window.location.href = "/settings/profile"} className="cursor-pointer">
+                  Profile Settings
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link href="/settings/workspace">Workspace Settings</Link>
+                <DropdownMenuItem onClick={() => window.location.href = "/settings/workspace"} className="cursor-pointer">
+                  Workspace Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <LogoutButton />
