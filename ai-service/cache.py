@@ -3,10 +3,9 @@ import os
 
 import redis
 
-redis_client = redis.Redis(
-    host=os.getenv("REDIS_HOST", "localhost"),
-    port=int(os.getenv("REDIS_PORT", 6379)),
-    db=0,
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+redis_client = redis.from_url(
+    REDIS_URL,
     decode_responses=False # We might store raw bytes, but let's use strings for now
 )
 
