@@ -27,6 +27,8 @@ const PUBLIC_PATHS = [
   "/api/auth/verify-email",
   "/api/health",
   "/api/chat", // Public API route used by external widget
+  "/widget", // Public chat iframe embedded on customer sites — visitors are never logged in
+  "/widget.js", // Public embed script served from /public — same reason
 ];
 
 export async function middleware(request: NextRequest) {

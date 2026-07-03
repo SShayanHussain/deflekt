@@ -150,13 +150,18 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
+          # Public URL of this EC2 instance. Defaults to http://<HOST> (same host
+          # used for SSH) so the widget-install snippet on the dashboard embeds a
+          # real, externally-reachable address instead of "http://localhost".
+          # Override with an APP_URL secret if you put a domain/TLS in front of nginx.
+          APP_URL: ${{ secrets.APP_URL || format('http://{0}', secrets.HOST) }}
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           timeout: 30m
           command_timeout: 30m
-          envs: DATABASE_URL,OPENAI_API_KEY,GEMINI_API_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_S3_BUCKET,AWS_REGION
+          envs: DATABASE_URL,OPENAI_API_KEY,GEMINI_API_KEY,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_S3_BUCKET,AWS_REGION,APP_URL
           script: |
             set -e
             cd /home/${{ secrets.USERNAME }}/deflekt
@@ -174,6 +179,7 @@ jobs:
             echo "AWS_SECRET_ACCESS_KEY=$(echo "$AWS_SECRET_ACCESS_KEY" | sed 's/\$/$$/g')" >> .env
             echo "AWS_S3_BUCKET=$(echo "$AWS_S3_BUCKET" | sed 's/\$/$$/g')" >> .env
             echo "AWS_REGION=$(echo "$AWS_REGION" | sed 's/\$/$$/g')" >> .env
+            echo "APP_URL=$(echo "$APP_URL" | sed 's/\$/$$/g')" >> .env
             echo "GITHUB_REPOSITORY=$(echo "$GITHUB_REPOSITORY" | sed 's/\$/$$/g')" >> .env
             
             # Pull latest images and restart. Include the "migrate" profile so

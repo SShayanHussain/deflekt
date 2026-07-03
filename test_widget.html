@@ -12,20 +12,20 @@
 <body>
     <div class="hero">
         <h1>My Awesome SaaS</h1>
-        <p>This is a completely separate website used to test the Deflekt widget embed.</p>
+        <p>This is a completely separate website used to test the Deflekt widget embed against production.</p>
     </div>
-    
+
     <h2>Features</h2>
     <ul>
         <li>Widget is injected via script tag</li>
-        <li>Connects back to localhost:3000</li>
+        <li>Connects to the live production EC2 instance (54.208.178.218)</li>
         <li>Should appear in the bottom right corner</li>
     </ul>
 
-    <!-- Injected Widget Script -->
-    <script 
-       src="http://localhost:3000/widget.js" 
-       data-workspace="b442ddf9-60c3-40d9-b385-89de7cebce8f"
+    <!-- Injected Widget Script — points at the real production instance -->
+    <script
+       src="http://54.208.178.218/widget.js"
+       data-workspace="82e76be9-8d39-4b55-aada-6316865cd23b"
        defer
     ></script>
 </body>
