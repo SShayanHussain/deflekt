@@ -69,9 +69,14 @@ def ingest_document(document_id: str):
         doc.updated_at = datetime.now(UTC)
         db.commit()
 
-        # Download from S3
+        # Fetch File
         with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            if not doc.url.startswith("mock-s3-key") and BUCKET_NAME:
+            if doc.url.startswith("local://"):
+                import shutil
+                local_source_path = os.path.join("/app/uploads", doc.url.replace("local://", ""))
+                shutil.copyfile(local_source_path, tmp.name)
+                file_path = tmp.name
+            elif not doc.url.startswith("mock-s3-key") and BUCKET_NAME:
                 s3_client.download_file(BUCKET_NAME, doc.url, tmp.name)
                 file_path = tmp.name
             else:

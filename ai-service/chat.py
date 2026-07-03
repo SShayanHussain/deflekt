@@ -9,6 +9,13 @@ from models import Chunk
 # Initialize client with dummy key if none provided to avoid import crash
 # We check both GEMINI_API_KEY and OPENAI_API_KEY to avoid breaking existing setups
 api_key = os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY") or "dummy-key"
+if api_key == "dummy-key":
+    print("WARNING: No GEMINI_API_KEY or OPENAI_API_KEY found! Falling back to dummy-key.", flush=True)
+else:
+    # Print the prefix to prove it was found without leaking the whole key
+    key_prefix = api_key[:4] + "***"
+    print(f"INFO: Successfully loaded API key starting with {key_prefix}", flush=True)
+
 gemini_client = genai.Client(api_key=api_key)
 CHEAP_MODEL = os.getenv("LLM_MODEL_CHEAP", "gemini-2.5-flash")
 

@@ -1,6 +1,8 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { env } from "./env";
+import fs from "fs/promises";
+import path from "path";
 
 let s3Client: S3Client | null = null;
 
@@ -24,14 +26,15 @@ export async function uploadSourceFile(
   fileContent: Buffer,
   contentType: string
 ): Promise<string> {
-  if (!s3Client || !env.AWS_S3_BUCKET) {
-    // For local dev without credentials, we just simulate success
-    // In a production app, we would throw an error here.
-    console.warn("No AWS credentials provided, simulating file upload.");
-    return `mock-s3-key/${workspaceId}/${fileName}`;
-  }
-
   const key = `workspaces/${workspaceId}/sources/${Date.now()}-${fileName}`;
+
+  if (!s3Client || !env.AWS_S3_BUCKET) {
+    console.warn("No AWS credentials provided, saving file to local volume.");
+    const localPath = path.join("/app/uploads", key);
+    await fs.mkdir(path.dirname(localPath), { recursive: true });
+    await fs.writeFile(localPath, fileContent);
+    return `local://${key}`;
+  }
 
   const command = new PutObjectCommand({
     Bucket: env.AWS_S3_BUCKET,
@@ -48,7 +51,7 @@ export async function uploadSourceFile(
  * Generates a presigned URL for downloading the file.
  */
 export async function getPresignedUrl(key: string): Promise<string> {
-  if (!s3Client || !env.AWS_S3_BUCKET || key.startsWith("mock-s3-key")) {
+  if (!s3Client || !env.AWS_S3_BUCKET || key.startsWith("local://") || key.startsWith("mock-s3-key")) {
     return `http://localhost/mock-url/${key}`;
   }
 
@@ -62,9 +65,19 @@ export async function getPresignedUrl(key: string): Promise<string> {
 }
 
 /**
- * Deletes a file from S3.
+ * Deletes a file from S3 or local storage.
  */
 export async function deleteSourceFile(key: string): Promise<void> {
+  if (key.startsWith("local://")) {
+    try {
+      const localPath = path.join("/app/uploads", key.replace("local://", ""));
+      await fs.unlink(localPath);
+    } catch (e) {
+      console.error("Failed to delete local file:", e);
+    }
+    return;
+  }
+
   if (!s3Client || !env.AWS_S3_BUCKET || key.startsWith("mock-s3-key")) {
     return;
   }

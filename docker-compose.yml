@@ -47,6 +47,8 @@ services:
       DATABASE_URL: postgresql://deflekt:deflekt@db:5432/deflekt
       REDIS_URL: redis://redis:6379
       AI_SERVICE_URL: http://ai-service:8000
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -71,6 +73,8 @@ services:
     environment:
       DATABASE_URL: postgresql://deflekt:deflekt@db:5432/deflekt
       REDIS_URL: redis://redis:6379
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -94,8 +98,13 @@ services:
     environment:
       DATABASE_URL: postgresql://deflekt:deflekt@db:5432/deflekt
       REDIS_URL: redis://redis:6379
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+volumes:
+  uploads_data:
