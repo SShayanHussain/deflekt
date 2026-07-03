@@ -21,6 +21,14 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const MIGRATIONS_DIR = join(__dirname, "..", "src", "lib", "db", "migrations");
 
+// Managed Postgres (RDS) requires TLS, but postgres.js does not enable SSL by
+// default. Turn it on for non-local hosts. `rejectUnauthorized: false` encrypts
+// the connection without pinning the RDS CA bundle (fine within a VPC).
+function sslOptions(url) {
+  const isLocal = /@(localhost|127\.0\.0\.1|db|postgres)[:/]/.test(url);
+  return isLocal ? {} : { ssl: { rejectUnauthorized: false } };
+}
+
 // Ordered probes that tell us whether a given migration is already applied, so
 // we can baseline a pre-existing database. Each probe returns a boolean column
 // named "applied". Keep in sync with the migration files.
@@ -108,7 +116,7 @@ async function main() {
     process.exit(1);
   }
 
-  const sql = postgres(url, { max: 1 });
+  const sql = postgres(url, { max: 1, ...sslOptions(url) });
   try {
     await ensureVectorExtension(sql);
     await baselineIfNeeded(sql);
