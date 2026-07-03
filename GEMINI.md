@@ -2,8 +2,10 @@
 
 > Standing rules for any AI coding agent (Claude Code / Antigravity) working in this repo.
 > Read this, `ARCHITECTURE.md`, `DECISIONS.md`, and `ROADMAP.md` at the start of every session.
-> **Read `PLAYBOOK.md` before writing any deployment, CI/CD, database, or AI-pipeline code —
-> it holds the production lessons learned on this project and its rules are mandatory.**
+> **Read `PLAYBOOK.md` in full before writing any deployment, CI/CD, database, or AI-pipeline
+> code — its rules are mandatory. If your platform supports `@` imports, it is imported below.**
+
+@PLAYBOOK.md
 
 ## Product
 **Deflekt** — a multi-tenant SaaS that connects to a business's help center/docs and answers
