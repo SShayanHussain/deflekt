@@ -12,6 +12,7 @@ import { toast } from "sonner";
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -20,6 +21,7 @@ export default function LoginPage() {
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+    setErrorMsg("");
 
     try {
       const res = await fetch("/api/auth/login", {
@@ -40,8 +42,10 @@ export default function LoginPage() {
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message);
+        setErrorMsg(error.message);
       } else {
         toast.error("An unknown error occurred");
+        setErrorMsg("An unknown error occurred");
       }
     } finally {
       setIsLoading(false);
@@ -71,6 +75,11 @@ export default function LoginPage() {
             </div>
             <Input id="password" name="password" type="password" required disabled={isLoading} />
           </div>
+          {errorMsg && (
+            <div className="text-sm font-medium text-destructive text-center">
+              {errorMsg}
+            </div>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <Button className="w-full" type="submit" disabled={isLoading}>

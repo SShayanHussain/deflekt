@@ -35,13 +35,13 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!user) {
-      return errorResponse("INVALID_CREDENTIALS", "Invalid email or password.", 401);
+      return errorResponse("INVALID_CREDENTIALS", "Username or password incorrect.", 401);
     }
 
     // --- Verify password ---
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {
-      return errorResponse("INVALID_CREDENTIALS", "Invalid email or password.", 401);
+      return errorResponse("INVALID_CREDENTIALS", "Username or password incorrect.", 401);
     }
 
     // --- Get user's first workspace ---

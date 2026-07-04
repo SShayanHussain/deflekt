@@ -12,6 +12,7 @@ import { toast } from "sonner";
 export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -22,15 +23,28 @@ export default function SignupPage() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
+    setErrorMsg("");
+
+    if (!name || !email || !password || !confirmPassword) {
+      const msg = "Field not correct. All fields are required.";
+      toast.error(msg);
+      setErrorMsg(msg);
+      setIsLoading(false);
+      return;
+    }
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
+      const msg = "Passwords doesn't match";
+      toast.error(msg);
+      setErrorMsg(msg);
       setIsLoading(false);
       return;
     }
 
     if (password.length < 8) {
-      toast.error("Password must be at least 8 characters");
+      const msg = "Field not correct. Password must be at least 8 characters.";
+      toast.error(msg);
+      setErrorMsg(msg);
       setIsLoading(false);
       return;
     }
@@ -54,8 +68,10 @@ export default function SignupPage() {
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message);
+        setErrorMsg(error.message);
       } else {
         toast.error("An unknown error occurred");
+        setErrorMsg("An unknown error occurred");
       }
     } finally {
       setIsLoading(false);
@@ -88,6 +104,11 @@ export default function SignupPage() {
             <Label htmlFor="confirmPassword">Confirm Password</Label>
             <Input id="confirmPassword" name="confirmPassword" type="password" required disabled={isLoading} />
           </div>
+          {errorMsg && (
+            <div className="text-sm font-medium text-destructive text-center">
+              {errorMsg}
+            </div>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <Button className="w-full" type="submit" disabled={isLoading}>
